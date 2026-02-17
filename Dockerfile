@@ -1,13 +1,23 @@
-FROM python:3.9-slim
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libsndfile1 \
+    python3 \
+    python3-pip \
+    libmecab-dev \
+    mecab \
+    curl \
+    cargo \
+    && apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 COPY . /app
 
-RUN apt-get update && apt-get install -y \
-    build-essential libsndfile1 \
-    && rm -rf /var/lib/apt/lists/*
-
 RUN pip install -e .
-RUN python -m unidic download
-RUN python melo/init_downloads.py
+RUN python3 -m unidic download
+RUN python3 melo/init_downloads.py
 
-CMD ["python", "./melo/app.py", "--host", "0.0.0.0", "--port", "8888"]
+EXPOSE 8000
+CMD ["uvicorn", "melotts_api:app", "--host", "0.0.0.0", "--port", "8000"]

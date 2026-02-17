@@ -1,62 +1,123 @@
-<div align="center">
-  <div>&nbsp;</div>
-  <img src="logo.png" width="300"/> <br>
-  <a href="https://trendshift.io/repositories/8133" target="_blank"><img src="https://trendshift.io/api/badge/repositories/8133" alt="myshell-ai%2FMeloTTS | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-</div>
 
-## Introduction
-MeloTTS is a **high-quality multi-lingual** text-to-speech library by [MIT](https://www.mit.edu/) and [MyShell.ai](https://myshell.ai). Supported languages include:
+# MeloTTS-FastAPI
 
-| Language | Example |
-| --- | --- |
-| English (American)    | [Link](https://myshell-public-repo-host.s3.amazonaws.com/myshellttsbase/examples/en/EN-US/speed_1.0/sent_000.wav) |
-| English (British)     | [Link](https://myshell-public-repo-host.s3.amazonaws.com/myshellttsbase/examples/en/EN-BR/speed_1.0/sent_000.wav) |
-| English (Indian)      | [Link](https://myshell-public-repo-host.s3.amazonaws.com/myshellttsbase/examples/en/EN_INDIA/speed_1.0/sent_000.wav) |
-| English (Australian)  | [Link](https://myshell-public-repo-host.s3.amazonaws.com/myshellttsbase/examples/en/EN-AU/speed_1.0/sent_000.wav) |
-| English (Default)     | [Link](https://myshell-public-repo-host.s3.amazonaws.com/myshellttsbase/examples/en/EN-Default/speed_1.0/sent_000.wav) |
-| Spanish               | [Link](https://myshell-public-repo-host.s3.amazonaws.com/myshellttsbase/examples/es/ES/speed_1.0/sent_000.wav) |
-| French                | [Link](https://myshell-public-repo-host.s3.amazonaws.com/myshellttsbase/examples/fr/FR/speed_1.0/sent_000.wav) |
-| Chinese (mix EN)      | [Link](https://myshell-public-repo-host.s3.amazonaws.com/myshellttsbase/examples/zh/ZH/speed_1.0/sent_008.wav) |
-| Japanese              | [Link](https://myshell-public-repo-host.s3.amazonaws.com/myshellttsbase/examples/jp/JP/speed_1.0/sent_000.wav) |
-| Korean                | [Link](https://myshell-public-repo-host.s3.amazonaws.com/myshellttsbase/examples/kr/KR/speed_1.0/sent_000.wav) |
+A simple OpenAI-compatible FastAPI wrapper for the [MyShell-AI/MeloTTS](https://github.com/myshell-ai/MeloTTS) text-to-speech engine.
 
-Some other features include:
-- The Chinese speaker supports `mixed Chinese and English`.
-- Fast enough for `CPU real-time inference`.
+## DISCLAMER
 
-## Usage
-- [Use without Installation](docs/quick_use.md)
-- [Install and Use Locally](docs/install.md)
-- [Training on Custom Dataset](docs/training.md)
+This wrapper was heavily AI generated. It is provided under absolutely no warranty. If you find any unexpected behaviour, I could look into it when I have free time.
 
-The Python API and model cards can be found in [this repo](https://github.com/myshell-ai/MeloTTS/blob/main/docs/install.md#python-api) or on [HuggingFace](https://huggingface.co/myshell-ai).
+---
 
-**Contributing**
+## Features
 
-If you find this work useful, please consider contributing to this repo.
+* **Multilingual Support:** Supports English (multiple accents), Spanish, French, Chinese, Japanese, and Korean.
+* **Configurable via ENV:** Control which models load and which device (CPU/CUDA) to use via Environment Variables.
+* **OpenAI-Compatible:** Drop-in compatibility for `/v1/audio/speech`, making it perfect for **Open WebUI**.
+* **Memory Efficient:** Only load the languages you actually need to save RAM/VRAM.
 
-- Many thanks to [@fakerybakery](https://github.com/fakerybakery) for adding the Web UI and CLI part.
+---
 
-## Authors
+## Configuration (Environment Variables)
 
-- [Wenliang Zhao](https://wl-zhao.github.io) at Tsinghua University
-- [Xumin Yu](https://yuxumin.github.io) at Tsinghua University
-- [Zengyi Qin](https://www.qinzy.tech) (project lead) at MIT and MyShell
+Before running the server, you can configure it using the following variables:
 
-**Citation**
-```
-@software{zhao2024melo,
-  author={Zhao, Wenliang and Yu, Xumin and Qin, Zengyi},
-  title = {MeloTTS: High-quality Multi-lingual Multi-accent Text-to-Speech},
-  url = {https://github.com/myshell-ai/MeloTTS},
-  year = {2023}
-}
+| Variable | Description | Default |
+| --- | --- | --- |
+| `MELOTTS_DEVICE` | Hardware to use: `cpu`, `cuda`, `cuda:0`, or `auto`. | `cpu` |
+| `MELOTTS_MODELS` | Comma-separated list of models to load: `EN,ES,FR,ZH,JP,KR` or `ALL`. | `ALL` |
+
+---
+
+## Running with Docker (Recommended)
+
+The easiest way to deploy the API is using the pre-built Docker image:
+
+**Example: Load only English and Spanish on CPU**
+
+```bash
+docker run -p 8000:8000 \
+  -e MELOTTS_MODELS="EN,ES" \
+  -e MELOTTS_DEVICE="cpu" \
+  ghcr.io/alvaroemtnez/melotts-fastapi:latest
+
 ```
 
-## License
+**Example: Load all languages on GPU**
 
-This library is under MIT License, which means it is free for both commercial and non-commercial use.
+```bash
+docker run --gpus all -p 8000:8000 \
+  -e MELOTTS_MODELS="ALL" \
+  -e MELOTTS_DEVICE="cuda" \
+  ghcr.io/alvaroemtnez/melotts-fastapi:latest
+
+```
+
+---
+
+## 🔌 Connecting to Open WebUI
+
+1. Navigate to **Settings > Audio**.
+2. **Text-to-Speech Engine:** OpenAI
+3. **OpenAI API Base URL:** `http://localhost:8000/v1`
+4. **OpenAI API Key:** Can be set to anything (e.g., `12345`).
+5. **Voice:** Choose from `EN-US`, `EN-BR`, `ES`, `FR`, etc. (Note: Only voices for models you loaded will appear in the API list).
+
+---
+
+## 🛠️ API Usage Examples
+
+### List Active Voices
+
+Only shows voices for models currently loaded in memory.
+
+```bash
+curl http://localhost:8000/v1/audio/voices
+
+```
+
+### Synthesize French Speech
+
+```bash
+curl -X POST http://localhost:8000/v1/audio/speech \
+  -H "Content-Type: application/json" \
+  --data '{
+    "input": "La lueur dorée du soleil caresse les vagues.",
+    "voice": "FR",
+    "speed": 1.0
+  }' \
+  --output test_fr.wav
+
+```
+
+### Synthesize Spanish Speech
+
+```bash
+curl -X POST http://localhost:8000/v1/audio/speech \
+  -H "Content-Type: application/json" \
+  --data '{
+    "input": "Hola, ¿cómo estás hoy?",
+    "voice": "ES"
+  }' \
+  --output test_es.wav
+
+```
+---
+
+## 📝 Available Voices Mapping
+
+If you load a model (e.g., `EN`), the following voices become available:
+
+* **EN:** `EN-Default`, `EN-US`, `EN-BR`, `EN_INDIA`, `EN-AU`
+* **ES:** `ES`
+* **FR:** `FR`
+* **ZH:** `ZH`
+* **JP:** `JP`
+* **KR:** `KR`
 
 ## Acknowledgements
 
-This implementation is based on [TTS](https://github.com/coqui-ai/TTS), [VITS](https://github.com/jaywalnut310/vits), [VITS2](https://github.com/daniilrobnikov/vits2) and [Bert-VITS2](https://github.com/fishaudio/Bert-VITS2). We appreciate their awesome work.
+This is heavily based on [highfillgoods/MeloTTS-API-Locally](https://github.com/highfillgoods/MeloTTS-API-Locally) but with added languages and a ready to use Docker image. Also, many thanks to the authors of [MyShell-AI/MeloTTS](https://github.com/myshell-ai/MeloTTS):
+- [Wenliang Zhao](https://wl-zhao.github.io) at Tsinghua University
+- [Xumin Yu](https://yuxumin.github.io) at Tsinghua University
+- [Zengyi Qin](https://www.qinzy.tech) (project lead) at MIT and MyShell
