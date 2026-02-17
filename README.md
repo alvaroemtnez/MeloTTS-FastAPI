@@ -47,7 +47,7 @@ docker run --gpus all -p 8000:8000 \
 
 ```
 
-## 🔌 Connecting to Open WebUI
+## Connecting to Open WebUI
 
 1. Navigate to **Settings > Audio**.
 2. **Text-to-Speech Engine:** OpenAI
