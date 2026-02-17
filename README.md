@@ -7,16 +7,12 @@ A simple OpenAI-compatible FastAPI wrapper for the [MyShell-AI/MeloTTS](https://
 
 This wrapper was heavily AI generated. It is provided under absolutely no warranty. If you find any unexpected behaviour, I could look into it when I have free time.
 
----
-
 ## Features
 
 * **Multilingual Support:** Supports English (multiple accents), Spanish, French, Chinese, Japanese, and Korean.
 * **Configurable via ENV:** Control which models load and which device (CPU/CUDA) to use via Environment Variables.
 * **OpenAI-Compatible:** Drop-in compatibility for `/v1/audio/speech`, making it perfect for **Open WebUI**.
 * **Memory Efficient:** Only load the languages you actually need to save RAM/VRAM.
-
----
 
 ## Configuration (Environment Variables)
 
@@ -26,8 +22,6 @@ Before running the server, you can configure it using the following variables:
 | --- | --- | --- |
 | `MELOTTS_DEVICE` | Hardware to use: `cpu`, `cuda`, `cuda:0`, or `auto`. | `cpu` |
 | `MELOTTS_MODELS` | Comma-separated list of models to load: `EN,ES,FR,ZH,JP,KR` or `ALL`. | `ALL` |
-
----
 
 ## Running with Docker (Recommended)
 
@@ -53,8 +47,6 @@ docker run --gpus all -p 8000:8000 \
 
 ```
 
----
-
 ## 🔌 Connecting to Open WebUI
 
 1. Navigate to **Settings > Audio**.
@@ -63,9 +55,7 @@ docker run --gpus all -p 8000:8000 \
 4. **OpenAI API Key:** Can be set to anything (e.g., `12345`).
 5. **Voice:** Choose from `EN-US`, `EN-BR`, `ES`, `FR`, etc. (Note: Only voices for models you loaded will appear in the API list).
 
----
-
-## 🛠️ API Usage Examples
+## API Usage Examples
 
 ### List Active Voices
 
@@ -102,9 +92,8 @@ curl -X POST http://localhost:8000/v1/audio/speech \
   --output test_es.wav
 
 ```
----
 
-## 📝 Available Voices Mapping
+## Available Voices Mapping
 
 If you load a model (e.g., `EN`), the following voices become available:
 
